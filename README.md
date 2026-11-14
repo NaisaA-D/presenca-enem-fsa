@@ -30,11 +30,11 @@ Não use códigos pessoais ou senhas da sua conta. O código de chegada permite 
 
 ## Publicação no GitHub
 
-Crie um repositório novo `presenca-enem-fsa` na conta NaisaA-D e envie os arquivos públicos deste projeto. Não envie `.private`, arquivos de trabalho ou a planilha local. O `.gitignore` já os exclui.
+Os arquivos públicos deste projeto já foram enviados para https://github.com/NaisaA-D/presenca-enem-fsa. Não envie `.private`, arquivos de trabalho ou a planilha local. O `.gitignore` já os exclui.
 
 Em **Settings → Pages**, selecione **GitHub Actions**. O workflow `.github/workflows/pages.yml` verifica o código, executa os testes e publica somente os cinco arquivos estáticos copiados para `dist`. O endereço final será informado pelo GitHub quando a implantação terminar.
 
-O conector disponível não cria repositórios. A criação do repositório e a autorização/publicação do Apps Script precisam ser concluídas na conta da proprietária. Nenhuma publicação foi realizada automaticamente.
+O código foi enviado ao repositório pela integração GitHub. A ativação do Pages em Settings e a autorização/publicação do Apps Script precisam ser concluídas na conta da proprietária. O site e a integração ainda não tiveram a publicação confirmada.
 
 ## Operação
 
@@ -58,4 +58,6 @@ A prévia real da escala usa `http://127.0.0.1:4173/?demo=1` e o arquivo local i
 
 ## Estado da entrega
 
-Planilha criada e pré-cadastros verificados. Código preparado e testes locais concluídos. Publicação no GitHub, autorização do Apps Script, definição dos códigos e teste de ponta a ponta ainda pendentes. Nenhuma presença real foi registrada.
+Planilha criada e pré-cadastros verificados. Código preparado e testes locais concluídos. Código enviado ao GitHub. Ativação do Pages, autorização do Apps Script, definição dos códigos e teste de ponta a ponta ainda pendentes. Nenhuma presença real foi registrada.
+
+
