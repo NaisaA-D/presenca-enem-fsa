@@ -8,11 +8,11 @@ const pages = {overview:'Visão geral',schools:'Escolas',vans:'Vans e equipes',p
 const toast = message => { $('#toast').textContent=message; $('#toast').hidden=false; setTimeout(()=>$('#toast').hidden=true,5000); };
 async function api(body) {
   if (demo) {
-    if (body.action === 'unlock') { if(body.code !== '246810') throw Error('Código de teste incorreto.'); return {}; }
-    if ((body.action === 'attendance' && (body.stage === 'initial' || !body.present)) && body.code !== '246810') throw Error('Informe o código de chegada.');
+    if (body.action === 'unlock') { if(body.code !== '2468') throw Error('Código de teste incorreto.'); return {}; }
+    if ((body.action === 'attendance' && (body.stage === 'initial' || !body.present)) && body.code !== '2468') throw Error('Informe o código de chegada.');
     if (body.action === 'reassign' && body.code !== '135790') throw Error('Código de administração incorreto.');
     if (body.action === 'add') {
-      if(body.code !== '246810') throw Error('Código de chegada incorreto.');
+      if(body.code !== '2468') throw Error('Código de chegada incorreto.');
       if(state.people.some(p=>normalize(p.name).trim()===normalize(body.name).trim())) throw Error('Este nome já está cadastrado. Confira na lista de presença.');
       body.personId='p_'+crypto.randomUUID();
     }
@@ -76,6 +76,8 @@ $('#add-form').onsubmit=e=>{e.preventDefault();submit(e.target,{action:'add',nam
 $('#access-button').onclick=()=>{$('#operator').value=operator;$('#access-form .form-error').textContent='';$('#access-dialog').showModal();};
 $('#refresh').textContent='↻';$('#refresh').onclick=load;
 function route(){page=location.hash.slice(1);if(!pages[page])page='overview';render();}window.addEventListener('hashchange',route);route();
-if(demo){$('#mode-banner').hidden=false;$('#mode-banner').textContent='PRÉVIA LOCAL · Marcações de teste, sem gravação no Sheets. Código chegada: 246810 · Administração: 135790';}
+if(demo){$('#mode-banner').hidden=false;$('#mode-banner').textContent='PRÉVIA LOCAL · Marcações de teste, sem gravação no Sheets. Código chegada: 2468 · Administração: 135790';}
 load();setInterval(()=>{if(!busy&&!document.querySelector('dialog[open]'))load();},Math.max(15,config.refreshSeconds||30)*1000);
+
+
 
