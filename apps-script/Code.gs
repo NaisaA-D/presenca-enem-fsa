@@ -72,12 +72,11 @@ function refreshViews_(state){
   state.people.forEach(function(p){var alloc=state.allocations.filter(function(a){return a.personId===p.id;}),isCoordinator=alloc.some(function(a){return a.role==='coordinator';}),a=state.attendance[p.id]||{},schools=alloc.map(function(x){return state.schools.find(function(s){return s.id===x.schoolId;});}),origin=inclusions.find(function(i){return i.pessoa_id===p.id;});var row=[p.name,isCoordinator?'Coordenador(a)':'Colaborador(a)',schools.map(function(s){return s.name;}).join(' / '),schools.map(function(s){return s.city;}).filter(function(c,i,all){return all.indexOf(c)===i;}).join(' / '),(a.initial||{}).present?'Sim':'Pendente',(a.afternoon||{}).present?'Sim':'Pendente',origin?origin.operador:'Pré-cadastro'];(isCoordinator?coordinators:collaborators).push(row);});
   [['Presencas',attendance],['AlocacoesAtual',allocation],['Colaboradores',collaborators],['Coordenadores',coordinators]].forEach(function(pair){var sheet=db_().getSheetByName(pair[0]);sheet.clearContents();sheet.getRange(1,1,pair[1].length,pair[1][0].length).setValues(pair[1]);});
 }
-/** Execute uma vez, no editor, para definir os dois códigos. Nunca publique os códigos. */
+/** Execute no editor para definir o código único. Nunca publique o código. */
 function configurarCodigos(){
-  var ui=SpreadsheetApp.getUi();var arrival=ui.prompt('Código de chegada','Defina exatamente 4 dígitos numéricos.',ui.ButtonSet.OK_CANCEL);if(arrival.getSelectedButton()!==ui.Button.OK)return;
-  var admin=ui.prompt('Código de administração','Defina exatamente 4 dígitos numéricos, diferentes do código da chegada.',ui.ButtonSet.OK_CANCEL);if(admin.getSelectedButton()!==ui.Button.OK)return;
-  var a=arrival.getResponseText(),b=admin.getResponseText();if(!/^[0-9]{4}$/.test(a)||!/^[0-9]{4}$/.test(b)||a===b)throw Error('Use dois códigos diferentes, cada um com exatamente 4 dígitos. Nenhuma alteração salva.');
-  var salt=Utilities.getUuid();PropertiesService.getScriptProperties().setProperties({CODE_SALT:salt,ARRIVAL_HASH:digest_(salt+':'+a),ADMIN_HASH:digest_(salt+':'+b)});ui.alert('Códigos definidos. Compartilhe apenas o código de chegada com a equipe de recepção.');
+  var ui=SpreadsheetApp.getUi();var response=ui.prompt('Código de chegada e administração','Defina 4 dígitos. Este mesmo código permite marcar chegadas, cadastrar e realocar colaboradores.',ui.ButtonSet.OK_CANCEL);if(response.getSelectedButton()!==ui.Button.OK)return;
+  var code=response.getResponseText();if(!/^[0-9]{4}$/.test(code))throw Error('Use exatamente 4 dígitos numéricos. Nenhuma alteração salva.');
+  var salt=Utilities.getUuid(),hash=digest_(salt+':'+code);PropertiesService.getScriptProperties().setProperties({CODE_SALT:salt,ARRIVAL_HASH:hash,ADMIN_HASH:hash});ui.alert('Código único definido para chegada e administração.');
 }
 function atualizarVisoes(){refreshViews_(snapshot_());}
 function normalized_(s){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
