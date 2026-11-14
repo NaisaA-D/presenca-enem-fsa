@@ -79,7 +79,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{if(e.target.id==='search'){const at=e.target.selectionStart;query=e.target.value;render();$('#search').focus();$('#search').setSelectionRange(at,at);}});
 document.addEventListener('change',e=>{if(e.target.id==='city'){city=e.target.value;render();}});
 async function submit(form,body,done) {busy=true;const button=form.querySelector('[type="submit"]');button.disabled=true;form.querySelector('.form-error').textContent='';try{const result=await api(body);if(result.state)state=result.state;done();render();}catch(error){form.querySelector('.form-error').textContent=error.message;}finally{busy=false;button.disabled=false;}}
-$('#access-form').onsubmit=e=>{e.preventDefault();const code=$('#arrival-code').value;submit(e.target,{action:'unlock',code},()=>{pin=code;operator=$('#operator').value.trim();sessionStorage.setItem('operator',operator);$('#arrival-code').value='';$('#access-dialog').close();toast('Presença inicial liberada nesta sessão.');});};
+$('#access-form').onsubmit=e=>{e.preventDefault();const code=$('#arrival-code').value;submit(e.target,{action:'unlock',code},()=>{pin=code;if(page==='register')registerStage='initial';operator=$('#operator').value.trim();sessionStorage.setItem('operator',operator);$('#arrival-code').value='';$('#access-dialog').close();toast('Lista da manhã liberada nesta sessão.');});};
 $('#attendance-form').onsubmit=e=>{e.preventDefault();operator=$('#afternoon-operator').value.trim();sessionStorage.setItem('operator',operator);submit(e.target,{...pending,action:'attendance',operator,code:pin||$('#correction-code').value,requestId:crypto.randomUUID()},()=>{$('#attendance-dialog').close();$('#school-dialog').close();$('#correction-code').value='';toast(demo?'Marcação de teste salva só nesta prévia.':'Presença gravada no Google Sheets.');});};
 $('#move-form').onsubmit=e=>{e.preventDefault();submit(e.target,{action:'reassign',personId:moving,schoolId:$('#target-school').value,operator:$('#move-operator').value.trim(),reason:$('#move-reason').value.trim(),version:state.assignmentVersions[moving]||0,code:$('#admin-code').value,requestId:crypto.randomUUID()},()=>{$('#move-dialog').close();$('#school-dialog').close();$('#admin-code').value='';toast('Alocação atualizada.');});};
 $('#add-form').onsubmit=e=>{e.preventDefault();submit(e.target,{action:'add',name:$('#new-name').value.trim(),schoolId:$('#new-school').value,operator:$('#new-operator').value.trim(),code:$('#new-code').value,requestId:crypto.randomUUID()},()=>{$('#add-dialog').close();$('#new-code').value='';toast(demo?'Cadastro de teste incluído nesta prévia.':'Colaborador cadastrado no Sheets.');});};
@@ -89,6 +89,7 @@ function route(){page=location.hash.slice(1);if(!pages[page])page='register';ren
 if(demo){$('#mode-banner').hidden=false;$('#mode-banner').textContent='PRÉVIA LOCAL · Marcações de teste, sem gravação no Sheets. Código chegada: 2468 · Administração: 1357';}
 load();setInterval(()=>{if(!busy&&!document.querySelector('dialog[open]'))load();},Math.max(15,config.refreshSeconds||30)*1000);
 let lastAfternoonOpen=afternoonOpen();setInterval(()=>{const open=afternoonOpen();if(open!==lastAfternoonOpen&&!document.querySelector('dialog[open]')){lastAfternoonOpen=open;render();}},1000);
+
 
 
 
