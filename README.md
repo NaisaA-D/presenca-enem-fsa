@@ -22,7 +22,7 @@ A planilha contém os pré-cadastros. Todas as presenças começam pendentes. As
 
 1. Na planilha, abra **Extensões → Apps Script**. Cole `apps-script/Code.gs` no arquivo de código e salve.
 2. Em Configurações do projeto → Propriedades do script, defina `SPREADSHEET_ID` como `1D3wwscmiKFgJmUhOT98MjuAEQpl0tJdl7Cns4XwP1A0`.
-3. Execute `configurarCodigos` no editor. Autorize na sua conta Google. Volte à planilha para responder aos dois diálogos: código da chegada (mínimo 8 caracteres) e código administrativo diferente (mínimo 12). As propriedades guardam somente hashes com salt.
+3. Execute `configurarCodigos` no editor. Autorize na sua conta Google. Volte à planilha para responder aos dois diálogos: código da chegada (exatamente 4 dígitos) e código administrativo diferente (mínimo 12). As propriedades guardam somente hashes com salt.
 4. Publique como **Aplicativo da Web**, executando como você, acesso **Qualquer pessoa**. Copie o URL terminado em `/exec` e cole em `apiUrl`, no arquivo `config.js`.
 5. Abra a dashboard e faça um teste de gravação com uma pessoa de teste. Confira o registro na aba Historico e as listas Colaboradores/Coordenadores. Remova a presença de teste com o código de chegada. O teste real de integração depende dessa publicação; os testes automatizados usam serviços simulados.
 
@@ -59,5 +59,6 @@ A prévia real da escala usa `http://127.0.0.1:4173/?demo=1` e o arquivo local i
 ## Estado da entrega
 
 Planilha criada e pré-cadastros verificados. Código preparado e testes locais concluídos. Código enviado ao GitHub. Ativação do Pages, autorização do Apps Script, definição dos códigos e teste de ponta a ponta ainda pendentes. Nenhuma presença real foi registrada.
+
 
 
