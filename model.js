@@ -1,4 +1,6 @@
-export const STAGES = { initial: 'Presença inicial', afternoon: 'Presença da tarde' };
+export const STAGES = { initial: 'Manhã', afternoon: 'Tarde' };
+export const afternoonUnlockAt = (date = '2026-11-15') => Date.parse(`${date}T15:30:00-03:00`);
+export const afternoonIsOpen = (now, date = '2026-11-15') => now >= afternoonUnlockAt(date);
 export const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 export const presence = (state, id, stage) => state.attendance?.[id]?.[stage] ?? { present: false, version: 0 };
 export const assignmentsFor = (state, id) => state.allocations.filter(a => a.personId === id);

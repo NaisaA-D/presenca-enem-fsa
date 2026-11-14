@@ -7,7 +7,8 @@ function doPost(e) { return output_(function(){
   var lock=LockService.getScriptLock();lock.waitLock(20000);
   try{return mutate_(body);}finally{lock.releaseLock();}
 }); }
-function output_(fn){try{return ContentService.createTextOutput(JSON.stringify(Object.assign({ok:true},fn()))).setMimeType(ContentService.MimeType.JSON);}catch(error){return ContentService.createTextOutput(JSON.stringify({ok:false,error:error.message||'Não foi possível concluir.'})).setMimeType(ContentService.MimeType.JSON);}}
+function output_(fn){try{return ContentService.createTextOutput(JSON.stringify(Object.assign({ok:true,serverNow:new Date().toISOString()},fn()))).setMimeType(ContentService.MimeType.JSON);}catch(error){return ContentService.createTextOutput(JSON.stringify({ok:false,serverNow:new Date().toISOString(),error:error.message||'Não foi possível concluir.'})).setMimeType(ContentService.MimeType.JSON);}}
+function afternoonOpensAt_(){var row=rows_('Config').find(function(r){return r.chave==='data';});var date=row?String(row.valor):'2026-11-15';if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error('Data da ação inválida na configuração.');return Date.parse(date+'T15:30:00-03:00');}
 function db_(){var id=PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');if(!id)throw Error('Configure SPREADSHEET_ID nas propriedades do script.');return SpreadsheetApp.openById(id);}
 function rows_(name){var sheet=db_().getSheetByName(name);if(!sheet)throw Error('Aba obrigatória ausente: '+name);var data=sheet.getDataRange().getValues(),header=data.shift();return data.filter(function(r){return r[0]!=='';}).map(function(r){var out={};header.forEach(function(k,i){out[k]=r[i];});return out;});}
 function bool_(v){return v===true || v==='true' || v===1 || v==='TRUE';}
@@ -42,6 +43,7 @@ function mutate_(body){
   if(['attendance','reassign','add'].indexOf(body.action)<0)throw Error('Ação inválida.');
   if(body.action==='attendance'){
     if(['initial','afternoon'].indexOf(body.stage)<0||typeof body.present!=='boolean')throw Error('Período ou presença inválido.');
+    if(body.stage==='afternoon'&&Date.now()<afternoonOpensAt_())throw Error('A presença da tarde será liberada às 15h30 do dia da ação, no horário de São Paulo.');
     if(body.stage==='initial'||!body.present)checkCode_(body.code,'ARRIVAL');
   }else checkCode_(body.code,body.action==='add'?'ARRIVAL':'ADMIN');
   var request=text_(body.requestId,16,80);if(!/^[a-zA-Z0-9_-]+$/.test(request))throw Error('Identificador inválido.');
@@ -94,4 +96,3 @@ function addPerson_(body,request,operator,state){
   var next=snapshot_();try{refreshViews_(next);}catch(error){console.error(error.message);}return {state:next};
 }
 function onOpen(){SpreadsheetApp.getUi().createMenu('Presença ENEM').addItem('Configurar códigos','configurarCodigos').addItem('Atualizar lista de presença','atualizarVisoes').addToUi();}
-
