@@ -75,8 +75,8 @@ function refreshViews_(state){
 /** Execute uma vez, no editor, para definir os dois códigos. Nunca publique os códigos. */
 function configurarCodigos(){
   var ui=SpreadsheetApp.getUi();var arrival=ui.prompt('Código de chegada','Defina exatamente 4 dígitos numéricos.',ui.ButtonSet.OK_CANCEL);if(arrival.getSelectedButton()!==ui.Button.OK)return;
-  var admin=ui.prompt('Código de administração','Use um código diferente, com pelo menos 12 caracteres.',ui.ButtonSet.OK_CANCEL);if(admin.getSelectedButton()!==ui.Button.OK)return;
-  var a=arrival.getResponseText(),b=admin.getResponseText();if(!/^[0-9]{4}$/.test(a)||b.length<12||a===b)throw Error('Use 4 dígitos na chegada e pelo menos 12 caracteres na administração. Nenhuma alteração salva.');
+  var admin=ui.prompt('Código de administração','Defina exatamente 4 dígitos numéricos, diferentes do código da chegada.',ui.ButtonSet.OK_CANCEL);if(admin.getSelectedButton()!==ui.Button.OK)return;
+  var a=arrival.getResponseText(),b=admin.getResponseText();if(!/^[0-9]{4}$/.test(a)||!/^[0-9]{4}$/.test(b)||a===b)throw Error('Use dois códigos diferentes, cada um com exatamente 4 dígitos. Nenhuma alteração salva.');
   var salt=Utilities.getUuid();PropertiesService.getScriptProperties().setProperties({CODE_SALT:salt,ARRIVAL_HASH:digest_(salt+':'+a),ADMIN_HASH:digest_(salt+':'+b)});ui.alert('Códigos definidos. Compartilhe apenas o código de chegada com a equipe de recepção.');
 }
 function atualizarVisoes(){refreshViews_(snapshot_());}
