@@ -1,0 +1,9 @@
+.private/
+node_modules/
+.env
+.env.*
+*.zip
+*.xlsx
+*.log
+coverage/
+dist/

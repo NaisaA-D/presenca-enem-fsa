@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {totals,schoolStats,applyEvent,toCsv} from '../model.js';
+const fixture=()=>({people:[{id:'p1',name:'Coord'},{id:'p2',name:'Colab'},{id:'p3',name:'Reserva'}],schools:[{id:'s1',targetCollaborators:1,targetCoordinators:1},{id:'s2',targetCollaborators:0,targetCoordinators:1}],allocations:[{id:'a1',personId:'p1',schoolId:'s1',role:'coordinator'},{id:'a2',personId:'p1',schoolId:'s2',role:'coordinator'},{id:'a3',personId:'p2',schoolId:'s1',role:'collaborator'}],attendance:{},assignmentVersions:{},revision:0,history:[]});
+test('shared coordinators count once, reserves do not inflate planned total',()=>assert.deepEqual(totals(fixture(),'initial'),{planned:2,present:0,pending:2,schoolsCovered:0}));
+test('marking initial never marks afternoon',()=>{const s=fixture();applyEvent(s,{action:'attendance',personId:'p2',stage:'initial',present:true,version:1});assert.equal(totals(s,'initial').present,1);assert.equal(totals(s,'afternoon').present,0);});
+test('shared school coordination is identified',()=>assert.equal(schoolStats(fixture(),fixture().schools[0],'initial').shared,true));
+test('adding collaborator keeps initial and afternoon pending',()=>{const s=fixture();applyEvent(s,{action:'add',personId:'p4',name:'Nova Pessoa',schoolId:'s1',requestId:'add1'});assert.equal(s.people.length,4);assert.equal(totals(s,'initial').planned,3);assert.equal(totals(s,'afternoon').present,0);});
+test('reallocation removes previous collaborator assignment',()=>{const s=fixture();applyEvent(s,{action:'reassign',personId:'p2',schoolId:'s2',requestId:'move1',version:1});assert.deepEqual(s.allocations.filter(a=>a.personId==='p2').map(a=>a.schoolId),['s2']);});
+test('CSV export neutralizes spreadsheet formulas and quotes text',()=>{assert.ok(toCsv([['=HYPERLINK("x")','A;B']]).includes("'="));assert.ok(toCsv([['A;B']]).includes('"A;B"'));});
