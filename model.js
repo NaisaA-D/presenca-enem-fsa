@@ -3,6 +3,11 @@ export const afternoonUnlockAt = (date = '2026-11-15') => Date.parse(`${date}T15
 export const afternoonIsOpen = (now, date = '2026-11-15') => now >= afternoonUnlockAt(date);
 export const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 export const presence = (state, id, stage) => state.attendance?.[id]?.[stage] ?? { present: false, version: 0 };
+export function attendanceStatus(state, id, stage) {
+  const record = presence(state, id, stage);
+  return record.present ? 'present' : record.version > 0 ? 'absent' : 'pending';
+}
+export const presenceLabel = (state, id, stage) => ({present:'Sim',absent:'Ausente',pending:'Pendente'})[attendanceStatus(state,id,stage)];
 export const assignmentsFor = (state, id) => state.allocations.filter(a => a.personId === id);
 export const activePeople = state => state.people.filter(p => p.active !== false);
 export const plannedPeople = state => activePeople(state).filter(p => assignmentsFor(state, p.id).length);
@@ -22,7 +27,8 @@ export function schoolStats(state, school, stage) {
 export function totals(state, stage) {
   const people = plannedPeople(state);
   return { planned: people.length, present: people.filter(p => presence(state, p.id, stage).present).length,
-    pending: people.filter(p => !presence(state, p.id, stage).present).length,
+    pending: people.filter(p => attendanceStatus(state,p.id,stage)==='pending').length,
+    absent: people.filter(p => attendanceStatus(state,p.id,stage)==='absent').length,
     schoolsCovered: state.schools.filter(s => schoolStats(state, s, stage).complete).length };
 }
 export function filterPeople(state, { query = '', city = '', role = '', status = '', stage = 'initial' } = {}) {
@@ -31,7 +37,7 @@ export function filterPeople(state, { query = '', city = '', role = '', status =
     const schools = allocations.map(a => state.schools.find(s => s.id === a.schoolId)).filter(Boolean);
     return (!query || normalize([p.name, ...schools.map(s => s.name)].join(' ')).includes(normalize(query))) &&
       (!city || schools.some(s => s.city === city)) && (!role || allocations.some(a => a.role === role)) &&
-      (!status || (status === 'present' ? presence(state, p.id, stage).present : status === 'reserve' ? !allocations.length : !presence(state, p.id, stage).present));
+      (!status || (status === 'reserve' ? !allocations.length : attendanceStatus(state,p.id,stage)===status));
   }).sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 }
 export function applyEvent(state, event) {
